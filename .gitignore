@@ -1,2 +1,9 @@
 .DS_Store
 course-cloud-ms.code-workspace
+ms-gateway-server/.gitignore
+ms-gateway-server/mvnw
+.gitignore
+ms-gateway-server/.mvn/wrapper/maven-wrapper.properties
+ms-gateway-server/src/main/resources/META-INF/additional-spring-configuration-metadata.json
+ms-gateway-server/.gitattributes
+ms-gateway-server/mvnw.cmd
