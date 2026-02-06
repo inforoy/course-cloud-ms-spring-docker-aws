@@ -1,4 +1,4 @@
-package com.rwcalle.springcloud.app.gateway.ms_gateway_server;
+package com.rwcalle.springcloud.app.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
