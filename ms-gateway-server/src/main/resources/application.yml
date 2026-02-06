@@ -8,6 +8,12 @@ spring:
             uri: lb://ms-products
             predicates: 
             - Path=/api/products/**
+            #- Header=token,\d+
+            #- Header=token, 12345
+            #- Method=GET, POST
+            #- Query=color
+            #- Cookie=color, azul
+            #- Header=Content-Type, application/json
             filters: 
             - StripPrefix=2
             - name: EjemploCookie
@@ -21,3 +27,7 @@ spring:
             - Path=/api/items/**
             filters: 
             - StripPrefix=2
+            - AddRequestHeader=token-request, dato1
+            - AddResponseHeader=token-response, 12313123
+            - AddRequestParameter=name, RoyW
+            - SetResponseHeader=Content-Type, text/plain
