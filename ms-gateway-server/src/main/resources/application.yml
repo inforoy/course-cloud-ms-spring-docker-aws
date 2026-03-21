@@ -1,3 +1,28 @@
+logging:
+  level:
+    "[io.github.resilience4j.circuitbreaker]": DEBUG
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      defecto:
+        sliding-window-size: 6
+        failure-rate-threshold: 50 
+        wait-duration-in-open-state: 20s
+        permitted-number-of-calls-in-half-open-state: 4
+        slow-call-duration-threshold: 3s 
+        slow-call-rate-threshold: 50 
+    instances:
+      products:
+        base-config: defecto
+  timelimiter:
+    configs:
+      defecto:
+        timeout-duration: 3s
+    instances:
+      products:
+        base-config: defecto
+
 spring:
   cloud:
     gateway:
@@ -15,6 +40,11 @@ spring:
             #- Cookie=color, azul
             #- Header=Content-Type, application/json
             filters: 
+            - name: CircuitBreaker
+              args:
+                name: products
+                statusCodes: 500
+                fallbackuri: forward:/api/items/5
             - StripPrefix=2
             - name: EjemploCookie
               args:
