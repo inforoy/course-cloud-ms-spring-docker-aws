@@ -58,6 +58,46 @@ public class ItemServiceWebClient implements ItemService {
         
     }
 
+    @Override
+    public Product save(Product product) {
+        return client.build()
+        .post()
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(product)
+        .retrieve()
+        .bodyToMono(Product.class)
+        .block();
+    }
+
+    @Override
+    public Product update(Product product, Long id) {
+        Map<String, Long> params = new HashMap<>();
+        params.put("id", id);
+
+        return client.build()
+            .put()
+            .uri("/{id}", params)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(product)
+            .retrieve()
+            .bodyToMono(Product.class)
+            .block();
+    }
+
+    @Override
+    public void delete(Long id) {
+        Map<String, Long> params = new HashMap<>();
+        params.put("id", id);
+
+        client.build()
+            .delete()
+            .uri("/{id}", params)
+            .retrieve()
+            .bodyToMono(Void.class)
+            .block();
+    }
+
 
 
 }
