@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.rwcalle.springcloud.ms.items.models.Product;
+import com.rwcalle.libs.ms.commons.entities.Product;
 
 @FeignClient(name = "ms-products")
 public interface ProductFeignClient {

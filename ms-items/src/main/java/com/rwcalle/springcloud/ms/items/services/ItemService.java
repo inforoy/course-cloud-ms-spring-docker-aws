@@ -3,8 +3,8 @@ package com.rwcalle.springcloud.ms.items.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.rwcalle.libs.ms.commons.entities.Product;
 import com.rwcalle.springcloud.ms.items.models.Item;
-import com.rwcalle.springcloud.ms.items.models.Product;
 
 public interface ItemService {
 

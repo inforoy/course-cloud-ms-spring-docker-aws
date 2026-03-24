@@ -8,7 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.rwcalle.springcloud.ms.products.entities.Product;
+import com.rwcalle.libs.ms.commons.entities.Product;
 import com.rwcalle.springcloud.ms.products.repositories.ProductRepository;
 
 @Service

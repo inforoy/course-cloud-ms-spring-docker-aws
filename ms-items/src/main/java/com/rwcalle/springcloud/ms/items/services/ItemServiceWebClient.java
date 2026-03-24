@@ -13,8 +13,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 
+import com.rwcalle.libs.ms.commons.entities.Product;
 import com.rwcalle.springcloud.ms.items.models.Item;
-import com.rwcalle.springcloud.ms.items.models.Product;
 
 //@Primary
 @Service

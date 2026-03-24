@@ -1,4 +1,4 @@
-package com.rwcalle.springcloud.ms.products.entities;
+package com.rwcalle.libs.ms.commons.entities;
 
 import java.time.LocalDate;
 

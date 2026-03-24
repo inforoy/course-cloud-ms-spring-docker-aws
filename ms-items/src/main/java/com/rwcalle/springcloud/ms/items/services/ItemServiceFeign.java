@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.rwcalle.libs.ms.commons.entities.Product;
 import com.rwcalle.springcloud.ms.items.clients.ProductFeignClient;
 import com.rwcalle.springcloud.ms.items.models.Item;
-import com.rwcalle.springcloud.ms.items.models.Product;
 
 import feign.FeignException;
 

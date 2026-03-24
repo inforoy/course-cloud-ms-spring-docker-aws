@@ -2,7 +2,7 @@ package com.rwcalle.springcloud.ms.products.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rwcalle.springcloud.ms.products.entities.Product;
+import com.rwcalle.libs.ms.commons.entities.Product;
 import com.rwcalle.springcloud.ms.products.services.ProductService;
 
 import java.util.List;

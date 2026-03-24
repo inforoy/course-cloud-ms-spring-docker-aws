@@ -1,5 +1,7 @@
 package com.rwcalle.springcloud.ms.items.models;
 
+import com.rwcalle.libs.ms.commons.entities.Product;
+
 public class Item {
 
     private Product product;
