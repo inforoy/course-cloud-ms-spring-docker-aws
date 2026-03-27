@@ -1,0 +1,78 @@
+package com.rwcalle.springcloud.ms.users.entities;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Column(unique = true)
+    private String usernameString;
+
+    @NotBlank
+    private String passwordString;
+
+    private boolean enabled;
+
+    @Email
+    @NotBlank
+    @Column(unique = true)
+    private String emailString;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsernameString() {
+        return usernameString;
+    }
+
+    public void setUsernameString(String usernameString) {
+        this.usernameString = usernameString;
+    }
+
+    public String getPasswordString() {
+        return passwordString;
+    }
+
+    public void setPasswordString(String passwordString) {
+        this.passwordString = passwordString;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getEmailString() {
+        return emailString;
+    }
+
+    public void setEmailString(String emailString) {
+        this.emailString = emailString;
+    }
+
+    
+
+    
+       
+}

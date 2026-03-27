@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rwcalle.springcloud.ms.items.models.Item;
 import com.rwcalle.springcloud.ms.items.models.Product;
 import com.rwcalle.springcloud.ms.items.services.ItemService;
-import com.rwcalle.springcloud.ms.items.services.ItemServiceFeign;
+//import com.rwcalle.springcloud.ms.items.services.ItemServiceFeign;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;

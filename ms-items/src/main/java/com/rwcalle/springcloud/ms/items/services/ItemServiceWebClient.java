@@ -10,7 +10,7 @@ import java.util.Random;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
+//import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 
 import com.rwcalle.springcloud.ms.items.models.Item;
