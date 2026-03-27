@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,20 +23,26 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
+        user.setPasswordString(passwordEncoder.encode(user.getPasswordString()));
         User savedUser = userService.save(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> createUser(@RequestBody User user, @PathVariable Long id) {
+    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable Long id) {
         Optional<User> userOptional = userService.findById(id);
         return userOptional.map(userDB -> {
             userDB.setEmailString(user.getEmailString());
             userDB.setUsernameString(user.getUsernameString());
-            userDB.setEnabled(user.isEnabled());
+            if(user.isEnabled() != null){
+                userDB.setEnabled(user.isEnabled());
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userDB));
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
