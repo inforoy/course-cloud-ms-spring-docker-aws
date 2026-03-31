@@ -29,6 +29,12 @@ spring:
       server:
         webflux:
           routes:
+          - id: ms-oauth
+            uri: lb://ms-oauth
+            predicates:
+            - Path=/api/security/**
+            filters:
+            - StripPrefix=2
           - id: ms-users
             uri: lb://ms-users
             predicates:
