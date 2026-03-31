@@ -29,6 +29,12 @@ spring:
       server:
         webflux:
           routes:
+          - id: ms-users
+            uri: lb://ms-users
+            predicates:
+            - Path=/api/users/**
+            filters:
+            - StripPrefix=2
           - id: ms-products
             uri: lb://ms-products
             predicates: 
