@@ -64,7 +64,7 @@ public class UserService implements IUserService {
                 userDB.setEnabled(user.isEnabled());
             }
             
-            user.setRoles(getRoles(user));
+            userDB.setRoles(getRoles(user));
             return Optional.of(userRepository.save(userDB));
         }).orElseGet(() -> Optional.empty());
     }
