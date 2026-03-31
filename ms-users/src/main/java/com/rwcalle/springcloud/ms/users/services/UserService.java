@@ -33,11 +33,12 @@ public class UserService implements IUserService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<User> findByUsername(String usernameString){
-        return userRepository.findByUsername(usernameString);
+    public Optional<User> findByUsername(String username){
+        return userRepository.findByUsername(username);
     }
 
     @Transactional(readOnly = true)
+    @Override
     public Iterable<User> findAll(){
         return userRepository.findAll();
     }
@@ -45,8 +46,9 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public User save(User user){
-        user.setPasswordString(passwordEncoder.encode(user.getPasswordString()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(getRoles(user));
+        user.setEnabled(true);
         return userRepository.save(user);
     }
 
@@ -54,9 +56,11 @@ public class UserService implements IUserService {
     public Optional<User> update(User user, Long id) {
         Optional<User> userOptional = this.findById(id);
         return userOptional.map(userDB -> {
-            userDB.setEmailString(user.getEmailString());
-            userDB.setUsernameString(user.getUsernameString());
-            if(user.isEnabled() != null){
+            userDB.setEmail(user.getEmail());
+            userDB.setUsername(user.getUsername());
+            if(user.isEnabled() == null){
+                userDB.setEnabled(true);
+            } else {
                 userDB.setEnabled(user.isEnabled());
             }
             
