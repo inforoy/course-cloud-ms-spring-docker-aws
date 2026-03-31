@@ -10,6 +10,7 @@ public interface IUserService {
     Optional<User> findByUsername(String usernameString);
     Iterable<User> findAll();
     User save(User user);
+    Optional<User> update(User user, Long id);
     void delete(Long id);
 
 }
