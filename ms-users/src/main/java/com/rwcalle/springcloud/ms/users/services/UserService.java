@@ -1,12 +1,16 @@
 package com.rwcalle.springcloud.ms.users.services;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.rwcalle.springcloud.ms.users.entities.Role;
 import com.rwcalle.springcloud.ms.users.entities.User;
+import com.rwcalle.springcloud.ms.users.repositories.RoleRepository;
 import com.rwcalle.springcloud.ms.users.repositories.UserRepository;
 
 @Service
@@ -14,6 +18,10 @@ public class UserService implements IUserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
 
     @Transactional(readOnly = true)
     public Optional<User> findById(Long id){
@@ -32,6 +40,10 @@ public class UserService implements IUserService {
 
     @Transactional
     public User save(User user){
+        List<Role> roles = new ArrayList<>();
+        Optional<Role> roleOptional = roleRepository.findByname("ROLE_USER");
+        roleOptional.ifPresent(role -> roles.add(role));
+        user.setRoles(roles);
         return userRepository.save(user);
     }
 
