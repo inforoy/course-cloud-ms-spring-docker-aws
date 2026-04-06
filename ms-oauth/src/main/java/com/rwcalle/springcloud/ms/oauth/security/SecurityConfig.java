@@ -43,6 +43,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
@@ -131,6 +132,11 @@ public class SecurityConfig {
 				.postLogoutRedirectUri("http://127.0.0.1:8090/logout")
 				.scope(OidcScopes.OPENID)
 				.scope(OidcScopes.PROFILE)
+
+				.tokenSettings(TokenSettings.builder().accessTokenTimeToLive(java.time.Duration.ofHours(1))
+					.refreshTokenTimeToLive(java.time.Duration.ofDays(1))
+					.build())
+
 				.clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).requireProofKey(false).build())
 				.build();
 
