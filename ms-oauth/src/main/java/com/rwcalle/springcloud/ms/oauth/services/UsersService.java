@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,12 +22,14 @@ import com.rwcalle.springcloud.ms.oauth.models.User;
 @Service
 public class UsersService implements UserDetailsService {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(UsersService.class);
+
     @Autowired
     private WebClient.Builder client;
     
     //@Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
+        LOGGER.info("Iniciando el proceso de Login - Llamada al servicio UsersService::loadUserByUsername(), buscando usuario con username: {}", username);
         Map<String, String> params = new HashMap<>();
         params.put("username", username);
         try {
@@ -38,10 +42,22 @@ public class UsersService implements UserDetailsService {
             List<GrantedAuthority> roles = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
-                return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.isEnabled(), true, true, true, roles);
+
+            LOGGER.info("Usuario '{}' encontrado en el sistema, roles: {}", username, roles);
+
+            return new org.springframework.security.core.userdetails.User(
+                user.getUsername(), 
+                user.getPassword(), 
+                user.isEnabled(), 
+                true, 
+                true, 
+                true, 
+                roles);
                 
         } catch (Exception e) {
-            throw new UsernameNotFoundException("Error en el login, no existe el usuario '" + username + "' en el sistema");
+            String errorMessage = "Error en el login, no existe el usuario '" + username + "' en el sistema";
+            LOGGER.error(errorMessage);
+            throw new UsernameNotFoundException(errorMessage);
             //throw new RuntimeException("Error fetching user details", e);
         }
     	

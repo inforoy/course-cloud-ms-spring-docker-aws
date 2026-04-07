@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 public class ProductController {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
+
     final ProductService productService;
 
     public ProductController(ProductService productService) {
@@ -31,6 +35,7 @@ public class ProductController {
     
     @GetMapping
     public ResponseEntity<List<Product>> listProducts() {
+        LOGGER.info("Llamada al controlador ProductController::listProducts()");
         return ResponseEntity.ok(productService.findAll());
     }
     
@@ -56,12 +61,13 @@ public class ProductController {
     
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product product) {
+        LOGGER.info("Llamada al controlador ProductController::create(), creando producto: {}", product);
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(product));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Product product) {
-        
+        LOGGER.info("Llamada al controlador ProductController::update(), actualizando producto: {}", product);
         Optional<Product> productOptional = productService.findById(id);
         if(productOptional.isPresent()){
             Product productDB = productOptional.orElseThrow();
@@ -75,10 +81,11 @@ public class ProductController {
     
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id){
+        LOGGER.info("Llamada al controlador ProductController::delete(), eliminando producto con id: {}", id);
         Optional<Product> productOptional = productService.findById(id);
         if(productOptional.isPresent()){
             this.productService.deleteById(id);
-        return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
 
