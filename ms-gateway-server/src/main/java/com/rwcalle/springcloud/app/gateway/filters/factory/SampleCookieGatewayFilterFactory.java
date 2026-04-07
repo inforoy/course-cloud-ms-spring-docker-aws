@@ -1,5 +1,9 @@
 package com.rwcalle.springcloud.app.gateway.filters.factory;
 
+public class SampleCookieGatewayFilterFactory {
+
+}
+/*
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -79,3 +83,4 @@ public class SampleCookieGatewayFilterFactory extends AbstractGatewayFilterFacto
     }
 
 }
+     */

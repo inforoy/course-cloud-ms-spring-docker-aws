@@ -47,7 +47,7 @@ spring:
   cloud:
     gateway:
       server:
-        webflux:
+        webmvc:
           routes:
           - id: ms-oauth
             uri: lb://ms-oauth
@@ -78,11 +78,11 @@ spring:
                 statusCodes: 500
                 fallbackuri: forward:/api/items/5
             - StripPrefix=2
-            - name: EjemploCookie
-              args:
-                message: Hola mi mensaje personalizado para productos
-                name: user
-                value: Roy
+            #- name: EjemploCookie
+            #  args:
+            #    message: Hola mi mensaje personalizado para productos
+            #    name: user
+            #    value: Roy
           - id: ms-items
             uri: lb://ms-items
             predicates: 
