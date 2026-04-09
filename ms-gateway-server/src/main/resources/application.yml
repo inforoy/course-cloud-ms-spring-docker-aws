@@ -61,23 +61,23 @@ spring:
             - Path=/api/users/**
             filters:
             - StripPrefix=2
-          - id: ms-products
-            uri: lb://ms-products
-            predicates: 
-            - Path=/api/products/**
+          #- id: ms-products
+          #  uri: lb://ms-products
+          #  predicates: 
+          #  - Path=/api/products/**
             #- Header=token,\d+
             #- Header=token, 12345
             #- Method=GET, POST
             #- Query=color
             #- Cookie=color, azul
             #- Header=Content-Type, application/json
-            filters: 
-            - name: CircuitBreaker
-              args:
-                name: products
-                statusCodes: 500
-                fallbackuri: forward:/api/items/5
-            - StripPrefix=2
+            #filters: 
+            #- name: CircuitBreaker
+            #  args:
+            #    name: products
+            #    statusCodes: 500
+            #    fallbackuri: forward:/api/items/5
+            #- StripPrefix=2
             #- name: EjemploCookie
             #  args:
             #    message: Hola mi mensaje personalizado para productos
