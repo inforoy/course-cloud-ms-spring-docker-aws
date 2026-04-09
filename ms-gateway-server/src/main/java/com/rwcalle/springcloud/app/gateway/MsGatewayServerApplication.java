@@ -10,12 +10,19 @@ import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFuncti
 import static org.springframework.cloud.gateway.server.mvc.predicate.GatewayRequestPredicates.path;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.function.RouterFunction;
+import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
 @SpringBootApplication
 public class MsGatewayServerApplication {
 
-	public static void main(String[] args) {
+	private final RouterFunction<ServerResponse> routeConfig;
+
+    MsGatewayServerApplication(RouterFunction<ServerResponse> routeConfig) {
+        this.routeConfig = routeConfig;
+    }
+
+    public static void main(String[] args) {
 
 		SpringApplication.run(MsGatewayServerApplication.class, args);
 		
@@ -24,11 +31,22 @@ public class MsGatewayServerApplication {
 	@Bean
 	RouterFunction<ServerResponse> routeConfig() {
 		return route("ms-products").route(path("/api/products/**"), http())
+
+		.filter((request, next) -> {
+			ServerRequest requestModified = ServerRequest.from(request)
+				.header("message-request", "algun mensaje al request").build();
+
+				ServerResponse response = next.handle(requestModified);
+				response.headers().add("message-response", "algun mensaje al response");
+			return response;
+		})
+
 		.filter(lb("ms-products"))
 		.filter(circuitBreaker(config -> config
 			.setId("products")
 			.setStatusCodes("500")
 			.setFallbackPath("forward:/api/items/5")))
+
 		.before(stripPrefix(2)).build();
 	}
 

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
@@ -34,8 +35,10 @@ public class ProductController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Product>> listProducts() {
+    //public ResponseEntity<List<Product>> listProducts() {
+    public ResponseEntity<List<Product>> listProducts(@RequestHeader(name = "message-request", required = false) String messageRequest) {
         LOGGER.info("Llamada al controlador ProductController::listProducts()");
+        LOGGER.info("Message : {}", messageRequest);
         return ResponseEntity.ok(productService.findAll());
     }
     
