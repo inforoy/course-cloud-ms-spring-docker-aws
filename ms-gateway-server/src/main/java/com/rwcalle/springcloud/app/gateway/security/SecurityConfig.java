@@ -27,7 +27,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityWebFilterChain(HttpSecurity http){
+    SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authz -> {
             authz.requestMatchers("/authorized","/logout").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/items","/api/products","/api/users").permitAll()
