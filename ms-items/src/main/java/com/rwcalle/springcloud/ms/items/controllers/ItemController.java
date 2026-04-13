@@ -54,7 +54,8 @@ public class ItemController {
     private Environment env;
 
     //itemServiceWebClient
-    public ItemController(@Qualifier("itemServiceFeign") ItemService itemService, CircuitBreakerFactory circuitBreakerFactory) {
+    //itemServiceFeign
+    public ItemController(@Qualifier("itemServiceWebClient") ItemService itemService, CircuitBreakerFactory circuitBreakerFactory) {
         this.itemService = itemService;
         this.circuitBreakerFactory = circuitBreakerFactory;
     }
@@ -73,12 +74,12 @@ public class ItemController {
         return ResponseEntity.ok(json);
     }
     
-
     @GetMapping
     public List<Item> list(@RequestParam(name = "name", required = false) String name,
                             @RequestHeader(name = "token-request", required = false) String tokenRequest) {
-        System.out.println(name);
-        System.out.println(tokenRequest);
+        LOGGER.info("Llamada al controlador ItemController::list()");
+        LOGGER.info("Request Parameter: {}", name);
+        LOGGER.info("Request Token: {}", tokenRequest);
         return itemService.findAll();
     }
 
@@ -151,24 +152,24 @@ public class ItemController {
         });
     }
 
-
-
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Product create(@RequestBody Product product) {
+        LOGGER.info("Creando Producto: {}", product);
         return itemService.save(product);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Product update(@RequestBody Product product, @PathVariable Long id) {
+        LOGGER.info("Actualizando Producto: {}", product);
         return itemService.update(product, id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id){
+        LOGGER.info("Eliminando Producto con id: {}", id);
         itemService.delete(id);
     }
     

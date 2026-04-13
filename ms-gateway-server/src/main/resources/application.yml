@@ -46,9 +46,8 @@ spring:
             issuer-uri: http://127.0.0.1:9100
   cloud:
     gateway:
-      server:
-        webmvc:
-          routes:
+      mvc:
+        routes:
           - id: ms-oauth
             uri: lb://ms-oauth
             predicates:
@@ -63,26 +62,15 @@ spring:
             - StripPrefix=2
           - id: ms-products
             uri: lb://ms-products
-            predicates: 
+            predicates:
             - Path=/api/products/**
-            #- Header=token,\d+
-            #- Header=token, 12345
-            #- Method=GET, POST
-            #- Query=color
-            #- Cookie=color, azul
-            #- Header=Content-Type, application/json
-            filters: 
+            filters:
             - name: CircuitBreaker
               args:
-                name: products
+                id: products
                 statusCodes: 500
-                fallbackuri: forward:/api/items/5
+                fallbackUri: forward:/api/items/5
             - StripPrefix=2
-            #- name: EjemploCookie
-            #  args:
-            #    message: Hola mi mensaje personalizado para productos
-            #    name: user
-            #    value: Roy
           - id: ms-items
             uri: lb://ms-items
             predicates: 

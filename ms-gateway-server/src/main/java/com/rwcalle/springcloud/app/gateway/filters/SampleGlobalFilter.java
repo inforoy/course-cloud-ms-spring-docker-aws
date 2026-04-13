@@ -2,6 +2,8 @@ package com.rwcalle.springcloud.app.gateway.filters;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
@@ -14,20 +16,21 @@ import jakarta.servlet.ServletResponse;
 @Component
 public class SampleGlobalFilter implements Filter, Ordered {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(SampleGlobalFilter.class);
+
     @Override
     public int getOrder() {
-        return 100;
+        return Integer.MAX_VALUE - 9999;
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        // TODO Auto-generated method stub
-        //throw new UnsupportedOperationException("Unimplemented method 'doFilter'");
+
+        LOGGER.info("Ejecutando el filtro SampleGlobalFilter::doFilter()");
+
         chain.doFilter(request, response);
     }
-
- 
     
 }
 

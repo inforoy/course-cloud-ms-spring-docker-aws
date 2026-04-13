@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.rwcalle.springcloud.ms.users.entities.Role;
 import com.rwcalle.springcloud.ms.users.entities.User;
 import com.rwcalle.springcloud.ms.users.repositories.RoleRepository;
@@ -15,6 +18,8 @@ import com.rwcalle.springcloud.ms.users.repositories.UserRepository;
 
 @Service
 public class UserService implements IUserService {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;
