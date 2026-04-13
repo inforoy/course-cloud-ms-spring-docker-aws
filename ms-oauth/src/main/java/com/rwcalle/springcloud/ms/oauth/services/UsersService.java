@@ -42,7 +42,6 @@ public class UsersService implements UserDetailsService {
                 
         } catch (Exception e) {
             throw new UsernameNotFoundException("Error en el login, no existe el usuario '" + username + "' en el sistema");
-ommit            //throw new RuntimeException("Error fetching user details", e);
         }
     	
     }
