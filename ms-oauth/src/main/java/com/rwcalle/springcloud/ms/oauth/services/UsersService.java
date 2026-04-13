@@ -19,6 +19,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.rwcalle.springcloud.ms.oauth.models.User;
 
+import io.micrometer.tracing.Tracer;
+
 @Service
 public class UsersService implements UserDetailsService {
 
@@ -26,6 +28,9 @@ public class UsersService implements UserDetailsService {
 
     @Autowired
     private WebClient client;
+
+    @Autowired
+    private Tracer tracer;
     
     //@Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -44,6 +49,7 @@ public class UsersService implements UserDetailsService {
                 .collect(Collectors.toList());
 
             LOGGER.info("Usuario '{}' encontrado en el sistema, roles: {}", username, roles);
+            tracer.currentSpan().tag("success.login", "Se ha realizado el login con exito by username: " + username);
 
             return new org.springframework.security.core.userdetails.User(
                 user.getUsername(), 
@@ -57,6 +63,7 @@ public class UsersService implements UserDetailsService {
         } catch (Exception e) {
             String errorMessage = "Error en el login, no existe el usuario '" + username + "' en el sistema";
             LOGGER.error(errorMessage);
+            tracer.currentSpan().tag("error.login.message", errorMessage + " : " + e.getMessage());
             throw new UsernameNotFoundException(errorMessage);
             //throw new RuntimeException("Error fetching user details", e);
         }
