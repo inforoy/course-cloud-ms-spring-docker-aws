@@ -1,0 +1,76 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ConfigServerApplication<config-server>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.rwcalle.springcloud.configserver.config_server.ConfigServerApplication",
+            "projectName": "config-server",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=52466 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=config-server"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsItemsApplication<ms-items>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.rwcalle.springcloud.ms.items.MsItemsApplication",
+            "projectName": "ms-items",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsProductsApplication<ms-products>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.rwcalle.springcloud.ms.products.MsProductsApplication",
+            "projectName": "ms-products",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=51748 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=ms-products"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsOauthApplication<ms-oauth>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.rwcalle.springcloud.ms.oauth.MsOauthApplication",
+            "projectName": "ms-oauth",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsUsersApplication<ms-users>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.rwcalle.springcloud.ms.users.MsUsersApplication",
+            "projectName": "ms-users",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsGatewayServerApplication<ms-gateway-server>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.rwcalle.springcloud.app.gateway.MsGatewayServerApplication",
+            "projectName": "ms-gateway-server",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-EurekaServerApplication<eureka-server>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.rwcalle.springcloud.eurekaserver.app.eureka_server.EurekaServerApplication",
+            "projectName": "eureka-server",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

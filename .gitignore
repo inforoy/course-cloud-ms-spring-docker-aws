@@ -1,4 +1,9 @@
 .DS_Store
+**/target/
+**/*.jar
+**/*.jar.original
+zipkin/zipkin-server-*.jar
+zipkin/zipkin
 course-cloud-ms.code-workspace
 ms-gateway-server/.gitignore
 ms-gateway-server/mvnw
