@@ -10,8 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    //@Value("${config.baseurl.endpoint.ms-products}")
-    @Value("${config.baseurl.endpoint.ms_products}")
+    @Value("${config.baseurl.endpoint.ms-products}")
     private String url;
 
     /*

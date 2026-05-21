@@ -1,114 +1,47 @@
 services:
-  config-server:
-    container_name: config-server
-    image: config-server:v1
-    ports:
-      - "8888:8888"
-    restart: always
-    networks:
-      - springcloud
   eureka-server:
     container_name: eureka-server
-    image: eureka-server:latest
+    image: rwcalles/eureka:latest
     ports:
       - "8761:8761"
     restart: always
     networks:
       - springcloud
-  mysql-local:
-    container_name: mysql-local
-    image: mysql:8
-    ports:
-      - "3306:3306"
-    restart: always
-    networks:
-      - springcloud
-    environment:
-      - MYSQL_DATABASE=db_springboot_cloud
-      - MYSQL_ROOT_PASSWORD=admin
-    volumes:
-      - mysql_data:/var/lib/mysql
-  zipkin-server:
-    container_name: zipkin-server
-    image: zipkin-server:latest
-    ports:
-      - "9411:9411"
-    restart: always
-    networks:
-      - springcloud    
-    environment:
-      - STORAGE_TYPE=mysql
-      - MYSQL_USER=root
-      - MYSQL_PASS=admin
-      - MYSQL_HOST=mysql-local
-      - MYSQL_JDBC_URL=jdbc:mariadb://mysql-local:3306/zipkin?allowPublicKeyRetrieval=true&useSSL=false
-    depends_on:
-      - mysql-local
+  #mysql-local:
+  #  container_name: mysql-local
+  #  image: mysql:8
+  #  ports:
+  #    - "3306:3306"
+  #  restart: always
+  #  networks:
+  #    - springcloud
+  #  environment:
+  #    - MYSQL_DATABASE=db_springboot_cloud
+  #    - MYSQL_ROOT_PASSWORD=admin
+  #  volumes:
+  #    - mysql_data:/var/lib/mysql
   ms-products:
     #container_name: ms-products
-    image: ms-products:latest
+    image: rwcalles/products
     deploy:
-      replicas: 3
+      replicas: 1
     restart: always
     networks:
       - springcloud
     depends_on:
       - mysql-local
       - eureka-server
-      - zipkin-server
   ms-items:
     container_name: ms-items
-    image: ms-items:latest
+    image: rwcalles/items
     restart: always
     ports:
-      - "8002:8002"
       - "8005:8005"
-      - "8007:8007"
     networks:
       - springcloud
     depends_on:
       - eureka-server
-      - zipkin-server
       - ms-products
-  ms-users:
-    container_name: ms-users
-    image: ms-users:latest
-    restart: always
-    networks:
-      - springcloud
-    depends_on:
-      - eureka-server
-      - zipkin-server
-      - mysql-local
-  ms-oauth:
-    container_name: ms-oauth
-    image: ms-oauth:latest
-    restart: always
-    ports:
-      - "9100:9100"
-    networks:
-      - springcloud
-    depends_on:
-      - eureka-server
-      - zipkin-server
-      - ms-users
-  ms-gateway-server:
-    container_name: ms-gateway-server
-    image: ms-gateway-server:latest
-    restart: always
-    ports:
-      - "8090:8090"
-    networks:
-      - springcloud
-    environment:
-      IP_ADDR:  http://192.168.1.44:9100
-    depends_on:
-      - eureka-server
-      - zipkin-server
-      - ms-products
-      - ms-items
-      - ms-users
-      - ms-oauth
 networks:
   springcloud:
 

@@ -70,6 +70,7 @@ docker run --name mysql-local \
   -e MYSQL_ROOT_PASSWORD=admin \
   -e MYSQL_DATABASE=db_springboot_cloud \
   -p 3306:3306 \
+  --network springcloud \
   -d mysql:8
 
 # Levantar con volumen persistente (recomendado con Docker Compose)
@@ -93,6 +94,19 @@ docker rm mysql-local
 > - Password root: `admin`
 > - Base de datos: `db_springboot_cloud`
 > - Puerto: `3306`
+
+### Restaurar la base de datos
+
+Los dumps están en `/Users/roycalle/dev/projects/courses/course-files/Dump20260519/`.
+
+```bash
+docker exec -i mysql-local mysql -uroot -padmin db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_products.sql
+docker exec -i mysql-local mysql -uroot -padmin db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_roles.sql
+docker exec -i mysql-local mysql -uroot -padmin db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_users.sql
+docker exec -i mysql-local mysql -uroot -padmin db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_users_roles.sql
+```
+
+> Ejecutar en ese orden. Solo es necesario la primera vez o si se elimina el contenedor con `docker compose down -v`.
 
 ### Redes Docker
 
@@ -628,9 +642,37 @@ docker compose stop
 
 ---
 
+## Docker Hub
+
+Las imágenes publicadas en Docker Hub bajo el usuario `rwcalles`:
+
+| Imagen | Repositorio |
+|---|---|
+| ms-items | `rwcalles/items` |
+| ms-products | `rwcalles/products` |
+| eureka-server | `rwcalles/eureka` |
+
+```bash
+# Buildear con tag para Docker Hub
+docker build -t rwcalles/items .
+docker build -t rwcalles/products .
+docker tag eureka-server:latest rwcalles/eureka
+
+# Subir a Docker Hub (requiere docker login)
+docker login
+docker push rwcalles/items
+docker push rwcalles/products
+docker push rwcalles/eureka
+```
+
+> Para el despliegue en AWS se usan solo: `eureka-server`, `ms-products`, `ms-items`. MySQL lo provee Amazon RDS. Los demás microservicios (`ms-users`, `ms-oauth`, `config-server`, `ms-gateway-server`, `zipkin`) no se despliegan en esta etapa.
+
+---
+
 ## Pendientes
 
 - [x] Dockerfiles creados: `config-server`, `ms-products`, `ms-items`, `ms-users`, `ms-oauth`, `ms-gateway-server`
-- [ ] Crear Dockerfile para `eureka-server`
-- [ ] Crear docker-compose.yml para levantar todos los servicios juntos
+- [x] Crear Dockerfile para `eureka-server`
+- [x] Imágenes publicadas en Docker Hub: `rwcalles/items`, `rwcalles/products`, `rwcalles/eureka`
+- [x] Crear docker-compose.yml para levantar todos los servicios juntos
 - [ ] Despliegue en AWS EC2
