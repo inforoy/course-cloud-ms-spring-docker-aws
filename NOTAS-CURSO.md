@@ -72,6 +72,10 @@ docker run --name mysql-local \
   -p 3306:3306 \
   -d mysql:8
 
+# Levantar con volumen persistente (recomendado con Docker Compose)
+# El volumen mysql_data persiste los datos aunque se haga docker compose down
+# Solo se pierde si se ejecuta: docker compose down -v
+
 # Ver contenedores corriendo
 docker ps
 
@@ -177,6 +181,13 @@ docker logs nombre_contenedor
 
 # Ver logs en tiempo real (equivalente a tail -f)
 docker logs -f nombre_contenedor
+
+# Detener y eliminar TODOS los contenedores
+docker stop $(docker ps -q)
+docker rm $(docker ps -a -q)
+
+# Eliminar TODAS las imágenes
+docker rmi $(docker images -a -q)
 
 # Ver todos los comandos disponibles de Docker
 docker --help
@@ -353,6 +364,31 @@ Usuarios con solo `ROLE_USER`:
 | `GET /api/*/\{id\}` | `ROLE_USER` o `ROLE_ADMIN` |
 | `POST/PUT/DELETE /api/**` | Solo `ROLE_ADMIN` |
 
+### Problema: "bad credentials" después de restaurar la BD
+
+Si el login falla con "bad credentials" pero el usuario sí se encuentra en los logs, el hash BCrypt del dump no coincide con el password actual. Regenerar y actualizar:
+
+```bash
+# 1. Generar nuevo hash para "12345"
+CRYPTO=$(find ~/.m2/repository/org/springframework/security/spring-security-crypto -name "*.jar" | grep -v sources | head -1)
+LOGGING=$(find ~/.m2/repository/commons-logging/commons-logging -name "*.jar" | grep -v sources | head -1)
+
+cat > /tmp/BCryptGen.java << 'EOF'
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+public class BCryptGen {
+    public static void main(String[] args) {
+        System.out.println(new BCryptPasswordEncoder().encode("12345"));
+    }
+}
+EOF
+
+cd /tmp && javac -cp "$CRYPTO:$LOGGING" BCryptGen.java && java -cp "$CRYPTO:$LOGGING:." BCryptGen
+
+# 2. Actualizar todos los usuarios con el nuevo hash (reemplazar el valor generado)
+docker exec -i mysql-local mysql -uroot -padmin -e \
+  "UPDATE db_springboot_cloud.users SET password='<hash-generado>';"
+```
+
 ### Generar hash BCrypt para un password
 
 ```bash
@@ -391,6 +427,44 @@ docker build -t ms-products .
 docker start zipkin-server
 docker start eureka-server
 docker run -P --name ms-products --network springcloud ms-products
+```
+
+### Prueba de Load Balancing — múltiples instancias de ms-products
+
+> Prueba obligatoria para verificar que el balanceo de carga funciona. Eureka registra todas las instancias y el gateway distribuye las requests entre ellas.
+
+#### Con Docker Compose (recomendado)
+
+Para usar `--scale`, el servicio **no debe tener `container_name` fijo** en el `docker-compose.yml` — comentarlo o eliminarlo:
+
+```yaml
+ms-products:
+  # container_name: ms-products   # comentar para permitir múltiples instancias
+  image: ms-products:latest
+  ...
+```
+
+```bash
+# Levantar 3 instancias de ms-products
+docker compose up -d --scale ms-products=3
+
+# Ver las instancias creadas
+docker ps | grep ms-products
+```
+
+#### Con docker run (forma manual)
+
+```bash
+docker run -P --name ms-products2 --network springcloud -d ms-products
+docker run -P --name ms-products3 --network springcloud -d ms-products
+docker ps | grep ms-products
+```
+
+Verificar en Eureka que aparecen las 3 instancias: `http://localhost:8761`
+
+Hacer varias requests al gateway y observar que el puerto varía entre respuestas:
+```bash
+curl http://localhost:8090/api/products
 ```
 
 ### Flujo completo para construir y correr ms-users
@@ -460,6 +534,97 @@ docker build -t ms-gateway-server .
 docker run -p 8090:8090 --network springcloud --name ms-gateway-server \
   -e IP_ADDR=192.168.1.44:9100 -d ms-gateway-server
 ```
+
+### Recompilar y redesplegar un microservicio
+
+Pasos para cuando se hace un cambio en el código y hay que actualizar la imagen en Docker:
+
+```bash
+# 1. Detener y eliminar el contenedor
+docker stop <nombre>
+docker rm <nombre>
+
+# 2. Eliminar la imagen
+docker rmi <nombre>
+
+# 3. Recompilar el JAR
+cd <ruta-del-microservicio>
+./mvnw package -DskipTests
+
+# 4. Reconstruir la imagen
+docker build -t <nombre> .
+
+# 5. Levantar con compose
+cd /Users/roycalle/dev/projects/courses/course-cloud-ms-spring-docker-aws/docker-compose
+docker compose up -d <nombre>
+```
+
+---
+
+## Docker Compose
+
+```bash
+# Levantar servicios por grupos (recomendado para respetar el orden de dependencias)
+
+# Grupo 1 — infraestructura base
+docker compose up -d config-server eureka-server mysql-local zipkin-server
+
+# Grupo 2 — microservicios (después de que el grupo 1 esté healthy)
+docker compose up -d ms-users ms-products ms-items ms-oauth
+
+# Grupo 3 — gateway (último, depende de todos los anteriores)
+docker compose up -d ms-gateway-server
+
+# Levantar todos los servicios en foreground (ver logs en tiempo real)
+docker compose up
+
+# Levantar todos los servicios en background
+docker compose up -d
+
+# Ver logs de un servicio específico en tiempo real
+docker compose logs -f eureka-server
+docker compose logs -f config-server
+
+# Detener todos los servicios
+docker compose down
+
+# Detener sin eliminar los contenedores
+docker compose stop
+```
+
+| Parámetro | Significado |
+|---|---|
+| `up` | Crea e inicia los contenedores |
+| `-d` | Detached — corre en background |
+| `down` | Detiene y elimina contenedores y redes (el volumen `mysql_data` persiste) |
+| `down -v` | Detiene, elimina contenedores, redes **y volúmenes** (se pierden los datos) |
+| `stop` | Detiene los contenedores sin eliminarlos |
+| `logs -f <servicio>` | Sigue los logs de un servicio específico |
+| `up -d --force-recreate <servicio>` | Recrea un servicio específico con nuevas variables de entorno |
+
+> **Primera vez que se levanta el compose:** el volumen `mysql_data` arranca vacío. Hay que restaurar las BDs manualmente una sola vez (ver sección de restauración de BD). A partir de entonces `docker compose down/up` no pierde los datos.
+
+---
+
+## Diferencias entre mi docker-compose y el de la clase
+
+| Aspecto | Mi config | Clase |
+|---|---|---|
+| Nombre contenedor MySQL | `mysql-local` | `mysql8` |
+| Imagen MySQL | `mysql:8` | `mysql:8.0.40` |
+| Puerto MySQL | `3306:3306` | `3307:3306` |
+| Password MySQL | `admin` | `sasa1234` |
+| Volumen MySQL | `mysql_data:/var/lib/mysql` | No tiene |
+| Usuario Zipkin | `root`/`admin` | `zipkin`/`zipkin` |
+| MYSQL_JDBC_URL en Zipkin | Sí (fix RSA) | No |
+| Prefijo microservicios | `ms-` | `msvc-` |
+| Nombre gateway | `ms-gateway-server` | `gateway-server` |
+| IP gateway | `192.168.1.44:9100` | `192.168.0.21:9100` |
+| depends_on en gateway | Completo (todos los ms) | No tiene |
+
+> **Por qué `MYSQL_JDBC_URL` en Zipkin:** la clase usa usuario `zipkin`/`zipkin` con MySQL 8.0.40, lo que evita el problema de autenticación RSA. Mi config usa `root`/`admin` con `caching_sha2_password`, que requiere `allowPublicKeyRetrieval=true` en la URL JDBC — sin ello Zipkin no puede conectarse.
+
+> **Por qué el volumen en MySQL:** agregado para persistir los datos entre `docker compose down/up`. Sin él, hay que restaurar las BDs manualmente cada vez que se levanta el entorno desde cero.
 
 ---
 
