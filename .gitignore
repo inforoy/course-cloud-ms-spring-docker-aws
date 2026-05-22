@@ -12,3 +12,4 @@ ms-gateway-server/.mvn/wrapper/maven-wrapper.properties
 ms-gateway-server/src/main/resources/META-INF/additional-spring-configuration-metadata.json
 ms-gateway-server/.gitattributes
 ms-gateway-server/mvnw.cmd
+*.pem

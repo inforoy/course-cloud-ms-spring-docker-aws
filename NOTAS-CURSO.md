@@ -642,6 +642,147 @@ docker compose stop
 
 ---
 
+## AWS — Amazon RDS
+
+### Datos de la instancia
+
+| Campo | Valor |
+|---|---|
+| Endpoint | `db-ms-products.crucyiuc89oi.us-east-2.rds.amazonaws.com` |
+| Puerto | `3306` |
+| Base de datos | `db_springboot_cloud` |
+| Usuario | `root` |
+| Password | `admin12345` |
+
+> El Security Group `default` debe tener una regla de entrada: **MySQL/Aurora, puerto 3306, origen 0.0.0.0/0**.
+
+### Restaurar la BD en AWS RDS
+
+Requiere `mysql-client` instalado (`brew install mysql-client`). Agregar al PATH si no está:
+```bash
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+```
+
+```bash
+mysql -h db-ms-products.crucyiuc89oi.us-east-2.rds.amazonaws.com -uroot -padmin12345 db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_products.sql
+mysql -h db-ms-products.crucyiuc89oi.us-east-2.rds.amazonaws.com -uroot -padmin12345 db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_roles.sql
+mysql -h db-ms-products.crucyiuc89oi.us-east-2.rds.amazonaws.com -uroot -padmin12345 db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_users.sql
+mysql -h db-ms-products.crucyiuc89oi.us-east-2.rds.amazonaws.com -uroot -padmin12345 db_springboot_cloud < /Users/roycalle/dev/projects/courses/course-files/Dump20260519/db_springboot_cloud_users_roles.sql
+```
+
+> Ejecutar en ese orden. Solo es necesario la primera vez o si se elimina la instancia RDS.
+
+---
+
+## AWS — EC2
+
+### Instancia: ec2-aws-springcloud
+
+| Campo | Valor |
+|---|---|
+| Nombre | `ec2-aws-springcloud` |
+| DNS público | `ec2-100-54-116-110.compute-1.amazonaws.com` |
+| IP pública | `100.54.116.110` |
+| Usuario SSH | `ec2-user` |
+| Key pair | `ec2-aws.pem` |
+| Ubicación del .pem | `docker-compose/ec2-aws.pem` |
+
+### Instalar Docker en la instancia
+
+```bash
+# Instalar Docker
+sudo yum install -y docker
+
+# Arrancar el servicio Docker
+sudo service docker start
+
+# Verificar versión
+sudo docker version
+```
+
+> Si tras instalar aparece `Cannot connect to the Docker daemon`, es que el servicio no está arrancado. Solución: `sudo service docker start`.
+
+### Instalar Docker Compose en la instancia
+
+```bash
+# Descargar Docker Compose v5.1.2
+sudo curl -SL https://github.com/docker/compose/releases/download/v5.1.2/docker-compose-linux-x86_64 \
+  -o /usr/local/bin/docker-compose
+
+# Dar permisos de ejecución
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Crear symlink para poder usarlo sin ruta completa
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# Verificar instalación
+docker-compose version
+```
+
+### Conexión y transferencia de archivos
+
+```bash
+# Dar permisos al key pair (solo la primera vez)
+chmod 400 docker-compose/ec2-aws.pem
+
+# Conectar via SSH
+ssh -i ec2-aws.pem ec2-user@ec2-100-54-116-110.compute-1.amazonaws.com
+
+# Copiar docker-compose.yml a la instancia
+scp -i ec2-aws.pem docker-compose.yml ec2-user@ec2-100-54-116-110.compute-1.amazonaws.com:~/.
+```
+
+> El archivo `ec2-aws.pem` está en `.gitignore` — nunca se sube al repositorio.
+
+### Problema de arquitectura: arm64 (Mac) vs amd64 (EC2)
+
+**Verificación:**
+
+| Entorno | OS/Arch | Docker versión |
+|---|---|---|
+| Mac local (OrbStack) | `darwin/arm64` | 29.4.0 |
+| EC2 AWS | `linux/amd64` | 25.0.14 |
+
+Las imágenes publicadas en Docker Hub (`rwcalles/items`, `rwcalles/products`, `rwcalles/eureka`) fueron construidas en el Mac con arquitectura `arm64` — **no corren en EC2 que es `amd64`**.
+
+**Error al hacer `sudo docker-compose up` en EC2:**
+```
+no matching manifest for linux/amd64 in the manifest list entries
+```
+
+**Solución:** reconstruir y subir las imágenes especificando plataforma `linux/amd64`:
+
+```bash
+# Desde el directorio de cada microservicio en el Mac
+docker build --platform=linux/amd64 -t rwcalles/eureka .
+docker build --platform=linux/amd64 -t rwcalles/products .
+docker build --platform=linux/amd64 -t rwcalles/items .
+
+# Verificar que la arquitectura sea amd64 antes de subir
+docker image inspect rwcalles/eureka | grep Architecture
+
+# Subir a Docker Hub (requiere docker login previo)
+docker push rwcalles/eureka
+docker push rwcalles/products
+docker push rwcalles/items
+```
+
+> Verificar que el inspect muestre `"Architecture": "amd64"` antes de hacer push.
+
+---
+
+## AWS — Credenciales (solo demo)
+
+| Campo | Valor |
+|---|---|
+| Email | `roycalle.dev@gmail.com` |
+| Password | `boBwig-9tyscy-tajdiw` |
+| Tipo | Usuario raíz |
+
+> Cuenta creada exclusivamente para esta demo del curso. Eliminar recursos al finalizar para evitar costos.
+
+---
+
 ## Docker Hub
 
 Las imágenes publicadas en Docker Hub bajo el usuario `rwcalles`:
@@ -666,6 +807,24 @@ docker push rwcalles/eureka
 ```
 
 > Para el despliegue en AWS se usan solo: `eureka-server`, `ms-products`, `ms-items`. MySQL lo provee Amazon RDS. Los demás microservicios (`ms-users`, `ms-oauth`, `config-server`, `ms-gateway-server`, `zipkin`) no se despliegan en esta etapa.
+
+---
+
+## Prueba local conectando a AWS RDS
+
+Verificación exitosa: levantar los 3 servicios localmente apuntando al RDS de AWS.
+
+```bash
+cd /Users/roycalle/dev/projects/courses/course-cloud-ms-spring-docker-aws/docker-compose
+docker network create springcloud   # si no existe
+docker compose up -d eureka-server
+# esperar ~15 segundos
+docker compose up -d ms-products ms-items
+```
+
+> **Timing de Eureka:** esperar al menos 30 segundos después de levantar `ms-products` antes de hacer requests a `ms-items`. Eureka tarda en propagar el registro — si se llama antes, `ms-items` responde 503 (`No servers available for service: ms-products`) aunque `ms-products` esté corriendo. No es un error de configuración, solo hay que esperar.
+
+> `ms-products` se conecta al RDS de AWS via las variables de entorno del `docker-compose.yml` (`MYSQL_URL`, `MYSQL_USER`, `MYSQL_PASSWORD`). No se necesita MySQL local.
 
 ---
 

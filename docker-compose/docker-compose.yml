@@ -29,8 +29,11 @@ services:
     networks:
       - springcloud
     depends_on:
-      - mysql-local
       - eureka-server
+    environment:
+      MYSQL_URL: db-ms-products.crucyiuc89oi.us-east-2.rds.amazonaws.com:3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: admin12345
   ms-items:
     container_name: ms-items
     image: rwcalles/items
